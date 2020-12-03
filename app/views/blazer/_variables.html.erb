@@ -19,10 +19,12 @@
     <% @bind_vars.each_with_index do |var, i| %>
       <%= label_tag var, var %>
       <% if (data = @smart_vars[var]) %>
-        <%= select_tag var, options_for_select([[nil, nil]] + data, selected: params[var]), style: "margin-right: 20px; width: 200px; display: none;" %>
+        <%= select_tag "#{var}[]", options_for_select([[nil, nil]] + data, multiple: true, selected: params[var]), id: "#{var}", style: "margin-right: 20px; width: 300px; display: none;" %>
         <script>
           $("#<%= var %>").selectize({
-            create: true
+            create: false,
+            closeAfterSelect: false,
+            maxItems: 50,
           });
         </script>
       <% elsif var.end_with?("_at") || var == "start_time" || var == "end_time" %>
@@ -49,7 +51,6 @@
             datePicker.on("apply.daterangepicker", function(ev, picker) {
               datePicker.find("span").html(toDate(picker.startDate).format("MMMM D, YYYY"))
               input.val(toDate(picker.startDate).utc().format())
-              submitIfCompleted($("#<%= var %>").closest("form"))
             })
             if (input.val().length > 0) {
               var picker = datePicker.data("daterangepicker")
@@ -101,7 +102,6 @@
           },
           function(start, end) {
             setTimeInputs(start, end)
-            submitIfCompleted($("#start_time").closest("form"))
           }
         ).on("apply.daterangepicker", function(ev, picker) {
           setTimeInputs(picker.startDate, picker.endDate)
@@ -116,7 +116,6 @@
         } else {
           var picker = $("#reportrange").data("daterangepicker")
           $("#reportrange").trigger("apply.daterangepicker", picker)
-          submitIfCompleted($("#start_time").closest("form"))
         }
       </script>
     <% end %>
